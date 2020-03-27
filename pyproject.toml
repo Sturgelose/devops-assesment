@@ -12,6 +12,30 @@ gunicorn = "^20.0.4"
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.1"
 pytest-cov = "^2.8.1"
+bandit = "^1.6.2"
+black = "^19.10b0"
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
 
 [build-system]
 requires = ["poetry>=0.12"]
