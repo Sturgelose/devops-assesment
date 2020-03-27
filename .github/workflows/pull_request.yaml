@@ -18,6 +18,8 @@ jobs:
 
       - name: Configure Poetry
         uses: dschep/install-poetry-action@v1.3
+        with:
+          create_virtualenvs: true
 
       # Cache the .venv folder if the poetry.lock file has not changed
       - name: Cache .venv
@@ -26,25 +28,23 @@ jobs:
           cache-name: cache-venv
         with:
           path: ./.venv
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./poetry.lock') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/poetry.lock') }}
 
       # If the cache matches, we already have everything installed, so skip to speed up
       - name: Install Python dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: poetry install
+        run: poetry install && source .venv/bin/activate
 
-      # Linting with flake8 and black and autofix
-      - name: Run linters
-        uses: samuelmeuli/lint-action@v1
-        with:
-          github_token: ${{ secrets.github_token }}
-          auto_fix: ${{ github.event_name == 'pull_request' }}
-          black: true
-          flake8: true
+      # Linting with black
+      - name: Run black
+        run: poetry run black .
+
+      - name: Run flake8
+        run: poetry run flake8 .
 
       # Validate security holes with bandit
       - name: Run bandit
-        run: poetry run bandit . -r
+        run: poetry run bandit . -r -x ./.venv,./tests
 
   run-tests:
     name: Run Tests
@@ -61,6 +61,8 @@ jobs:
 
       - name: Configure Poetry
         uses: dschep/install-poetry-action@v1.3
+        with:
+          create_virtualenvs: true
 
       # Cache the .venv folder if the poetry.lock file has not changed
       - name: Cache .venv
@@ -69,7 +71,12 @@ jobs:
           cache-name: cache-venv
         with:
           path: ./.venv
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./poetry.lock') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/poetry.lock') }}
+
+      # If the cache matches, we already have everything installed, so skip to speed up
+      - name: Install Python dependencies
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: poetry install && source .venv/bin/activate
 
       - name: Run Pytest
         run: poetry run python -m pytest
