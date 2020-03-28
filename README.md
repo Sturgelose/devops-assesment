@@ -14,51 +14,32 @@ To do this assessment follow these preliminary steps:
 
 ## Run the app
 
-In a virtualenv, run:
+1. Install Poetry in your computer
+2. `poetry install` to install all the dependencies (including dev ones) in .venv/
+3. `poetry shell` to start local .venv
+4. `FLASK_APP=hello flask run`
 
-    python setup.py install
-    FLASK_APP=hello flask run
+### Why using poetry?
 
-## Tasks to complete
+Using requirements.txt is dangerous. Also, using setup.py will always install the latest versions of flask available.
+This makes a python env non reproducible. Poetry sets up a lockfile with all the versions set, so you can fully replicate
+the actual environment.
 
-Now you have the app running, it's your turn to work.
+### Linting process
 
-### Deploy the service on AWS Fargate
+* bandit to detect CVS security holes
+* black to autolint
+* flake8 to validate PEP8 structure
 
-   * Dockerize the service
-   * Connect to https://travelperk-candidates.signin.aws.amazon.com/console
-     and sign in with the credentials you got from our HR team and deploy a
-     cluster with a single service and 2 replicas of this application (i.e. 
-     with one task definition and two running tasks).
-   * Terraform the deployment. Please use this repository for references [devops-assessment-terraform][1].  
-     Check the instructions there for general info and to know what services and permissions are available.
+# Build process
 
-### Create a CI/CD deployment
+It's done using a dual build system. This way we only use the files we need to run Flask and the API so there are no dev
+libraries installed. This is done thanks to poetry separating dev and prod dependencies.
 
-Use any tool you have access to (we recommend GitHub actions, because it's free, very easy and fast
-to configure... but up to you) to build a CI/CD over the service you have deployed.
+It could include in the future and extra layer build on top, so this way you can download a dev version that includes the tests,
+and also run them in the container to make sure that the container works properly.
 
-#### Flow:
+## Future ideas
 
-  * Whenever a Pull Request is created, a task testing the application should 
-    start, and not allowing to merge if the test fails. (Another task for code 
-    linting is a plus).
-  * On merge, the AWS service should redeploy automatically with the new changes.
-
-## Important Notes
-
-  * We recommend to try to run the application dockerized locally on your computer
-    before starting the first task.
-  * When doing the CI/CD part: DON'T CREATE PULL REQUEST ON THE ORIGINAL REPOSITORY.
-    This is the default behavior in GitHub and it will expose your work to others!
-  * For the same reason, please avoid calling your repo `travelperk-whatever`.
-  * We are still calibrating the assessment, and you may not have time
-    to finish everything in the allocated time. This is fine. If it takes more than 4 hours you can leave the work as
-    it is and write down what your next steps would be. If you want to spend
-    two days or a week, up to you. But we don't want you to waste more of you
-    time.
-  * This is not a speed test. Please don't worry if you don't finish it.
-
- **Many thanks for your time and good luck!**
-
-[1]: https://github.com/travelperk/devops-assessment-terraform
+Poetry makes it a bit harder to report using the actual github actions.
+Also, reports done when doing the PR should be shown as artifacts or maybe even automatically lint the commit.
