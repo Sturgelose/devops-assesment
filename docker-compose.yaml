@@ -1,0 +1,12 @@
+version: '3.5'
+services:
+  devops-assesment:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - '5000:5000'
+
+networks:
+  default:
+    {}
